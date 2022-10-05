@@ -60,15 +60,6 @@ using variable_id_t = uint32_t;
 using variable_size_t = uint32_t;
 
 /*!
- \brief Type of parameter identifiers
- */
-using param_id_t = tchecker::variable_id_t;
-
-static_assert((std::numeric_limits<tchecker::param_id_t>::min() >= std::numeric_limits<tchecker::variable_id_t>::min()) &&
-                  (std::numeric_limits<tchecker::param_id_t>::max() <= std::numeric_limits<tchecker::variable_id_t>::max()),
-              "variable_id_t should contain param_id_t");
-
-/*!
  \brief Type of integer variable identifiers
  */
 using intvar_id_t = tchecker::variable_id_t;

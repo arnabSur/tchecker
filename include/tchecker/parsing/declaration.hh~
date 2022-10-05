@@ -393,12 +393,6 @@ public:
 
   /*!
    \brief Accessor
-   \return Size
-   */
-  inline unsigned int size() const { return _size; }
-
-  /*!
-   \brief Accessor
    \return Min value
    */
   inline tchecker::integer_t min() const { return _min; }

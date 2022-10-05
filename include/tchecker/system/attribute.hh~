@@ -114,7 +114,6 @@ private:
  \brief Attributes categories
 */
 enum attributes_category_t {
-  ATTR_PARAM,    /*!< Attributes on param */
   ATTR_CLOCK,    /*!< Attributes on clock */
   ATTR_EDGE,     /*!< Attributes on egde */
   ATTR_EVENT,    /*!< Attributes on event */

@@ -14,7 +14,6 @@
 #include "tchecker/basictypes.hh"
 #include "tchecker/parsing/declaration.hh"
 #include "tchecker/system/attribute.hh"
-#include "tchecker/system/param.hh"
 #include "tchecker/system/clock.hh"
 #include "tchecker/system/edge.hh"
 #include "tchecker/system/event.hh"
@@ -36,8 +35,7 @@ namespace system {
  \class system_t
  \brief System of processes
  */
-class system_t : private tchecker::system::params_t,
-                 private tchecker::system::clocks_t,
+class system_t : private tchecker::system::clocks_t,
                  private tchecker::system::edges_t,
                  private tchecker::system::events_t,
                  private tchecker::system::intvars_t,
@@ -102,25 +100,6 @@ public:
    \return map of known attributes that are interpreted by this system
   */
   static tchecker::system::attribute_keys_map_t const & known_attributes();
-  
-  // Bounded parameters
-
-  /*!
-   \brief Add a bounded parameter (see tchecker::system::parameters_t::add_parameter)
-   \throw std::invalid_argument : if there is another declared variable name (of any type)
-   */
-  void add_param(std::string const & name, tchecker::param_id_t size = 1,
-                  tchecker::integer_t min = std::numeric_limits<tchecker::integer_t>::min(),
-                  tchecker::integer_t max = std::numeric_limits<tchecker::integer_t>::max(),
-                  tchecker::system::attributes_t const & attr = tchecker::system::attributes_t());
-
-  using tchecker::system::params_t::parameters;
-  using tchecker::system::params_t::param_attributes;
-  using tchecker::system::params_t::param_id;
-  using tchecker::system::params_t::param_name;
-  using tchecker::system::params_t::params_count;
-  using tchecker::system::params_t::is_param;
-
 
   // Clocks
 

@@ -76,7 +76,6 @@ newline    [\n]
 "{"            { BEGIN ATTR_KEY;
 	               return system::parser_t::make_TOK_LBRACE(loc); }
 "}"            { return system::parser_t::make_TOK_RBRACE(loc); }
-"param"        { return system::parser_t::make_TOK_PARAM(loc); }
 "clock"        { return system::parser_t::make_TOK_CLOCK(loc); }
 "edge"         { return system::parser_t::make_TOK_EDGE(loc); }
 "event"        { return system::parser_t::make_TOK_EVENT(loc); }

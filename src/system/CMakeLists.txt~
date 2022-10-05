@@ -4,7 +4,6 @@
 
 set(SYSTEM_SRC
 ${CMAKE_CURRENT_SOURCE_DIR}/attribute.cc
-${CMAKE_CURRENT_SOURCE_DIR}/param.cc
 ${CMAKE_CURRENT_SOURCE_DIR}/clock.cc
 ${CMAKE_CURRENT_SOURCE_DIR}/edge.cc
 ${CMAKE_CURRENT_SOURCE_DIR}/event.cc
@@ -16,7 +15,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/static_analysis.cc
 ${CMAKE_CURRENT_SOURCE_DIR}/synchronization.cc
 ${CMAKE_CURRENT_SOURCE_DIR}/system.cc
 ${TCHECKER_INCLUDE_DIR}/tchecker/system/attribute.hh
-${TCHECKER_INCLUDE_DIR}/tchecker/system/param.hh
 ${TCHECKER_INCLUDE_DIR}/tchecker/system/clock.hh
 ${TCHECKER_INCLUDE_DIR}/tchecker/system/edge.hh
 ${TCHECKER_INCLUDE_DIR}/tchecker/system/event.hh

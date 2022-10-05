@@ -124,14 +124,12 @@ void declaration_t::visit(tchecker::parsing::declaration_visitor_t & v) const { 
 
 /* param_declaration_t */
 
-param_declaration_t::param_declaration_t(std::string const & name, unsigned int size, tchecker::integer_t min,
+param_declaration_t::param_declaration_t(std::string const & name, tchecker::integer_t min,
                                      tchecker::integer_t max, tchecker::parsing::attributes_t && attr)
-    : tchecker::parsing::inner_declaration_t(std::move(attr)), _name(name), _size(size), _min(min), _max(max)
+    : tchecker::parsing::inner_declaration_t(std::move(attr)), _name(name), _min(min), _max(max)
 {
   if (_name.empty())
     throw std::invalid_argument("param declaration has empty name");
-  if (_size < 1)
-    throw std::invalid_argument("param declaration has size < 1");
   if (_min > _max)
     throw std::invalid_argument("param declaration has min > max");
   if (0 > _min)
@@ -141,14 +139,14 @@ param_declaration_t::param_declaration_t(std::string const & name, unsigned int 
 tchecker::parsing::declaration_t * param_declaration_t::do_clone() const
 {
   tchecker::parsing::attributes_t attr(_attr);
-  return new tchecker::parsing::param_declaration_t(_name, _size, _min, _max, std::move(attr));
+  return new tchecker::parsing::param_declaration_t(_name, _min, _max, std::move(attr));
 }
 
 void param_declaration_t::do_visit(tchecker::parsing::declaration_visitor_t & v) const { v.visit(*this); }
 
 std::ostream & param_declaration_t::do_output(std::ostream & os) const
 {
-  os << "param:" << _size << ":" << _min << ":" << _max << ":";
+  os << "param" << ":" << _min << ":" << _max << ":";
   os << ":" << _name << _attr;
   return os;
 }

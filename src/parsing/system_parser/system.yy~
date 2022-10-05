@@ -142,22 +142,22 @@ eol_sequence declaration
 
 
 declaration:
-TOK_PARAM ":" uinteger ":" uinteger ":" uinteger ":" TOK_ID attr_list end_declaration
+TOK_PARAM ":" uinteger ":" uinteger ":" TOK_ID attr_list end_declaration
 {
-  auto const * d = system_declaration->get_param_declaration($9);
+  auto const * d = system_declaration->get_param_declaration($7);
   if (d != nullptr)
-    std::cerr << tchecker::log_error << @9 << " multiple declarations of parameter " << $9 << std::endl;
+    std::cerr << tchecker::log_error << @7 << " multiple declarations of parameter " << $7 << std::endl;
   else {
-    auto const * clockd = system_declaration->get_clock_declaration($9);
+    auto const * clockd = system_declaration->get_clock_declaration($7);
     if (clockd != nullptr)
-      std::cerr << tchecker::log_error << @9 << " variable " << $9 << " already declared as a clock" << std::endl;
+      std::cerr << tchecker::log_error << @7 << " variable " << $7 << " already declared as a clock" << std::endl;
     else{
-      auto const * intd = system_declaration->get_int_declaration($9);
+      auto const * intd = system_declaration->get_int_declaration($7);
       if (intd != nullptr)
-        std::cerr << tchecker::log_error << @9 << " variable " << $9 << " already declared as an int variable" << std::endl;
+        std::cerr << tchecker::log_error << @7 << " variable " << $7 << " already declared as an int variable" << std::endl;
       else {
         try {
-          d = new tchecker::parsing::param_declaration_t($9, $3, $5, $7, std::move($10));
+          d = new tchecker::parsing::param_declaration_t($7, $3, $5, std::move($8));
           if ( ! system_declaration->insert_param_declaration(d) ) {
             std::cerr << tchecker::log_error << @$ << " insertion of param declaration failed" << std::endl;
             delete d;
