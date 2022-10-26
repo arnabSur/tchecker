@@ -24,11 +24,13 @@ public:
    \brief Constructor
    \param intvars : integer variables
    \param clocks : clock variables
+   \param params : parameters
    \param log : logging facility
    */
   expression_typechecker_t(tchecker::integer_variables_t const & localvars, tchecker::integer_variables_t const & intvars,
-                           tchecker::clock_variables_t const & clocks, std::function<void(std::string const &)> error)
-      : _typed_expr(nullptr), _localvars(localvars), _intvars(intvars), _clocks(clocks), _error(error)
+                           tchecker::clock_variables_t const & clocks, tchecker::parameters_t const & params,
+                           std::function<void(std::string const &)> error)
+      : _typed_expr(nullptr), _localvars(localvars), _intvars(intvars), _clocks(clocks), _params(params), _error(error)
   {
   }
 
@@ -104,6 +106,9 @@ public:
     }
     // clock variable
     else if ((type == tchecker::EXPR_TYPE_CLKVAR) || (type == tchecker::EXPR_TYPE_CLKARRAY))
+      _typed_expr = new tchecker::typed_var_expression_t(type, expr.name(), id, size);
+    // parameter
+    else if ((type == tchecker::EXPR_TYPE_PARAMVAR) || (type == tchecker::EXPR_TYPE_PARAMARRAY))
       _typed_expr = new tchecker::typed_var_expression_t(type, expr.name(), id, size);
     // otherwise (BAD)
     else
@@ -212,6 +217,10 @@ public:
       _typed_expr = new tchecker::typed_diagonal_clkconstr_expression_t(expr_type, expr.binary_operator(), typed_left_operand,
                                                                         typed_right_operand);
       break;
+    case tchecker::EXPR_TYPE_CLKCONSTR_PARAM:
+      _typed_expr = new tchecker::typed_param_clkconstr_expression_t(expr_type, expr.binary_operator(), typed_left_operand,
+                                                                      typed_right_operand);
+      break;
     default:
       _typed_expr =
           new tchecker::typed_binary_expression_t(expr_type, expr.binary_operator(), typed_left_operand, typed_right_operand);
@@ -296,6 +305,8 @@ protected:
    tchecker::EXPR_TYPE_INTVAR if name is an integer variable of size 1,
    tchecker::EXPR_TYPE_CLKARRAY if name is an array of clock variables,
    tchecker::EXPR_TYPE_CLKVAR if name is a clock variable of size 1
+   tchecker::EXPR_TYPE_PARAMARRAY if name is an array of parameters,
+   tchecker::EXPR_TYPE_PARAMVAR if name is a parameter of size 1
    tchecker::EXPR_TYPE_BAD otherwise (name is not a declared variable)
    \pre name is a declared integer or clock variable
    */
@@ -338,6 +349,18 @@ protected:
     catch (...) {
     }
 
+    // Parameter ?
+    try {
+      auto id = _params.id(name);
+      auto size = _params.info(id).size();
+      if (size > 1)
+        return std::make_tuple(tchecker::EXPR_TYPE_PARAMARRAY, id, size);
+      else
+        return std::make_tuple(tchecker::EXPR_TYPE_PARAMVAR, id, size);
+    }
+    catch (...) {
+    }
+
     // Not a variable name
     return std::make_tuple(tchecker::EXPR_TYPE_BAD, std::numeric_limits<tchecker::variable_id_t>::max(), 1);
   }
@@ -346,6 +369,7 @@ protected:
   tchecker::integer_variables_t const & _localvars; /*!< Local variables */
   tchecker::integer_variables_t const & _intvars;   /*!< Integer variables */
   tchecker::clock_variables_t const & _clocks;      /*!< Clock variables */
+  tchecker::parameters_t const & _params;      /*!< Parameters */
   std::function<void(std::string const &)> _error;  /*!< Error logging func */
 };
 
@@ -354,9 +378,10 @@ protected:
 tchecker::typed_expression_t * typecheck(tchecker::expression_t const & expr, tchecker::integer_variables_t const & localvars,
                                          tchecker::integer_variables_t const & intvars,
                                          tchecker::clock_variables_t const & clocks,
+                                         tchecker::parameters_t const & params,
                                          std::function<void(std::string const &)> error)
 {
-  tchecker::details::expression_typechecker_t v(localvars, intvars, clocks, error);
+  tchecker::details::expression_typechecker_t v(localvars, intvars, clocks, params, error);
   expr.visit(v);
   return v.release();
 }

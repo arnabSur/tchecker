@@ -43,6 +43,9 @@ enum expression_type_t {
   EXPR_TYPE_CLKCONSTR_SIMPLE,    // Atomic simple clock constraint
   EXPR_TYPE_CLKCONSTR_DIAGONAL,  // Atomic diagonal clock constraint
   EXPR_TYPE_CONJUNCTIVE_FORMULA, // Conjunction of atomic formulas
+  EXPR_TYPE_PARAMVAR,            // Parameter (with size=1)
+  EXPR_TYPE_PARAMARRAY,          // Array of parameters (with size>1)
+  EXPR_TYPE_CLKCONSTR_PARAM,     // Atomic parametric clock constraint
 };
 
 /*!
@@ -65,6 +68,7 @@ class typed_binary_expression_t;
 class typed_unary_expression_t;
 class typed_simple_clkconstr_expression_t;
 class typed_diagonal_clkconstr_expression_t;
+class typed_param_clkconstr_expression_t;
 class typed_ite_expression_t;
 
 /*!
@@ -110,6 +114,7 @@ public:
   virtual void visit(tchecker::typed_unary_expression_t const &) = 0;
   virtual void visit(tchecker::typed_simple_clkconstr_expression_t const &) = 0;
   virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const &) = 0;
+  virtual void visit(tchecker::typed_param_clkconstr_expression_t const &) = 0;
   virtual void visit(tchecker::typed_ite_expression_t const &) = 0;
 };
 
@@ -661,6 +666,47 @@ public:
   {
     auto const & diagonal = dynamic_cast<tchecker::typed_binary_expression_t const &>(left_operand()); // left expr is x - y
     return dynamic_cast<tchecker::typed_lvalue_expression_t const &>(diagonal.right_operand());
+  }
+
+  /*!
+   \brief Accessor
+   \return bound expression
+   */
+  inline tchecker::typed_expression_t const & bound() const { return right_operand(); }
+
+protected:
+  /*!
+   \brief Visit
+   \param v : visitor
+   */
+  virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
+
+  using tchecker::typed_binary_expression_t::do_visit;
+};
+
+/*!
+ \class typed_param_clkconstr_expression_t
+ \brief Typed parametric clock constraint expression (x # p)
+ */
+class typed_param_clkconstr_expression_t : public tchecker::typed_binary_expression_t {
+public:
+  /*!
+   \brief Constructor
+   \param type : type of expression
+   \param op : operator
+   \param left : left operand
+   \param right : right operand
+   */
+  typed_param_clkconstr_expression_t(enum tchecker::expression_type_t type, enum tchecker::binary_operator_t op,
+                                      tchecker::typed_expression_t * left, tchecker::typed_expression_t * right);
+
+  /*!
+   \brief Accessor
+   \return clock expression
+   */
+  inline tchecker::typed_lvalue_expression_t const & clock() const
+  {
+    return dynamic_cast<tchecker::typed_lvalue_expression_t const &>(left_operand());
   }
 
   /*!

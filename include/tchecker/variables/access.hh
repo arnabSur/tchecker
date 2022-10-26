@@ -38,6 +38,7 @@ enum variable_access_t {
 enum variable_type_t {
   VTYPE_CLOCK,
   VTYPE_INTVAR,
+  VTYPE_PARAM,
 };
 
 /*!

@@ -183,7 +183,7 @@ void system_t::set_invariant(tchecker::loc_id_t id,
     throw std::invalid_argument("Syntax error");
 
   std::shared_ptr<tchecker::typed_expression_t> invariant_typed_expr{
-      tchecker::typecheck(*invariant_expr, localvars, integer_variables(), clock_variables())};
+      tchecker::typecheck(*invariant_expr, localvars, integer_variables(), clock_variables(), parameters())};
 
   if (!tchecker::bool_valued(invariant_typed_expr->type())) {
     std::stringstream oss;
@@ -225,7 +225,7 @@ void system_t::set_guards(tchecker::edge_id_t id,
     throw std::invalid_argument("Syntax error");
 
   std::shared_ptr<tchecker::typed_expression_t> guard_typed_expr{
-      tchecker::typecheck(*guard_expr, localvars, integer_variables(), clock_variables())};
+      tchecker::typecheck(*guard_expr, localvars, integer_variables(), clock_variables(), parameters())};
 
   if (!tchecker::bool_valued(guard_typed_expr->type())) {
     std::stringstream oss;
@@ -287,7 +287,7 @@ void system_t::set_statements(tchecker::edge_id_t id,
     throw std::invalid_argument("Syntax error");
 
   std::shared_ptr<tchecker::typed_statement_t> typed_stmt{
-      tchecker::typecheck(*stmt, localvars, integer_variables(), clock_variables(),
+      tchecker::typecheck(*stmt, localvars, integer_variables(), clock_variables(), parameters(),
                           [](std::string const & e) { std::cerr << tchecker::log_error << e << std::endl; })};
 
   try {

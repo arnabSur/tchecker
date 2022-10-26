@@ -29,13 +29,16 @@ static void add_accesses(tchecker::typed_expression_t const & expr, tchecker::pr
 {
   std::unordered_set<tchecker::clock_id_t> clock_ids;
   std::unordered_set<tchecker::intvar_id_t> intvar_ids;
+  std::unordered_set<tchecker::param_id_t> param_ids;
 
-  tchecker::extract_variables(expr, clock_ids, intvar_ids);
+  tchecker::extract_variables(expr, clock_ids, intvar_ids, param_ids);
 
   for (tchecker::clock_id_t clock_id : clock_ids)
     map.add(clock_id, tchecker::VTYPE_CLOCK, tchecker::VACCESS_READ, pid);
   for (tchecker::intvar_id_t intvar_id : intvar_ids)
     map.add(intvar_id, tchecker::VTYPE_INTVAR, tchecker::VACCESS_READ, pid);
+  for (tchecker::param_id_t param_id : param_ids)
+    map.add(param_id, tchecker::VTYPE_PARAM, tchecker::VACCESS_READ, pid);
 }
 
 /*!
@@ -51,23 +54,28 @@ static void add_accesses(tchecker::typed_statement_t const & stmt, tchecker::pro
 {
   std::unordered_set<tchecker::clock_id_t> clock_ids;
   std::unordered_set<tchecker::intvar_id_t> intvar_ids;
+  std::unordered_set<tchecker::param_id_t> param_ids;
 
-  tchecker::extract_read_variables(stmt, clock_ids, intvar_ids);
+  tchecker::extract_read_variables(stmt, clock_ids, intvar_ids, param_ids);
 
   for (tchecker::clock_id_t clock_id : clock_ids)
     map.add(clock_id, tchecker::VTYPE_CLOCK, tchecker::VACCESS_READ, pid);
   for (tchecker::intvar_id_t intvar_id : intvar_ids)
     map.add(intvar_id, tchecker::VTYPE_INTVAR, tchecker::VACCESS_READ, pid);
+  for (tchecker::param_id_t param_id : param_ids)
+    map.add(param_id, tchecker::VTYPE_PARAM, tchecker::VACCESS_READ, pid);
 
   clock_ids.clear();
   intvar_ids.clear();
 
-  tchecker::extract_written_variables(stmt, clock_ids, intvar_ids);
+  tchecker::extract_written_variables(stmt, clock_ids, intvar_ids, param_ids);
 
   for (tchecker::clock_id_t clock_id : clock_ids)
     map.add(clock_id, tchecker::VTYPE_CLOCK, tchecker::VACCESS_WRITE, pid);
   for (tchecker::intvar_id_t intvar_id : intvar_ids)
     map.add(intvar_id, tchecker::VTYPE_INTVAR, tchecker::VACCESS_WRITE, pid);
+  for (tchecker::param_id_t param_id : param_ids)
+    map.add(param_id, tchecker::VTYPE_PARAM, tchecker::VACCESS_WRITE, pid);
 }
 
 tchecker::variable_access_map_t variable_access(tchecker::ta::system_t const & system)

@@ -25,26 +25,28 @@ namespace tchecker {
  \param stmt : statement
  \param clocks : a set of clock IDs
  \param intvars : a set of integer variable
+ \param params : a set of parameter IDs
  \post for every occurrence of a variable x in the right-hand side of stmt, x has been added to clocks if x
  is a clock, and to intvars if x is an integer variable. For array expressions (i.e. x[e]) in the right-hand
  side of stmt such that offset expression e cannot be evaluated statically, all x[k] have been added to the
  set (according to the type of x) for all k in the domain of x
  */
 void extract_read_variables(tchecker::typed_statement_t const & stmt, std::unordered_set<tchecker::clock_id_t> & clocks,
-                            std::unordered_set<tchecker::intvar_id_t> & intvars);
+                            std::unordered_set<tchecker::intvar_id_t> & intvars, std::unordered_set<tchecker::param_id_t> & params);
 
 /*!
  \brief Extract typed written variables IDs from a statement
  \param stmt : statement
  \param clocks : a set of clock IDs
  \param intvars : a set of integer variable
+ \param params : a set of parameter IDs
  \post for every occurrence of a variable x in the left-hand side of stmt, x has been added to clocks if x
  is a clock, and to intvars if x is an integer variable. For array expressions (i.e. x[e]) in the left-hand
  side of stmt such that offset expression e cannot be evaluated statically, all x[k] have been added to the
  set (according to the type of x) for all k in the domain of x
  */
 void extract_written_variables(tchecker::typed_statement_t const & stmt, std::unordered_set<tchecker::clock_id_t> & clocks,
-                               std::unordered_set<tchecker::intvar_id_t> & intvars);
+                               std::unordered_set<tchecker::intvar_id_t> & intvars, std::unordered_set<tchecker::param_id_t> & params);
 
 /*!
  \brief Check if a statement declares local variables

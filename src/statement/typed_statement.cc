@@ -28,6 +28,8 @@ std::ostream & operator<<(std::ostream & os, enum tchecker::statement_type_t typ
     return os << "CLKASSIGN_CLK";
   case STMT_TYPE_CLKASSIGN_SUM:
     return os << "CLKASSIGN_SUM";
+  case STMT_TYPE_CLKASSIGN_PARAM:
+    return os << "CLKASSIGN_PARAM";
   case STMT_TYPE_SEQ:
     return os << "SEQ";
   case STMT_TYPE_IF:
@@ -109,6 +111,17 @@ typed_sum_to_clock_assign_statement_t::typed_sum_to_clock_assign_statement_t(enu
 }
 
 void typed_sum_to_clock_assign_statement_t::do_visit(tchecker::typed_statement_visitor_t & v) const { v.visit(*this); }
+
+/* typed_param_to_clock_assign_statement_t */
+
+typed_param_to_clock_assign_statement_t::typed_param_to_clock_assign_statement_t(enum tchecker::statement_type_t type,
+                                                                             tchecker::typed_lvalue_expression_t const * lvalue,
+                                                                             tchecker::typed_expression_t const * rvalue)
+    : tchecker::typed_assign_statement_t(type, lvalue, rvalue)
+{
+}
+
+void typed_param_to_clock_assign_statement_t::do_visit(tchecker::typed_statement_visitor_t & v) const { v.visit(*this); }
 
 /* typed_sequence_statement_t */
 

@@ -332,6 +332,15 @@ public:
     throw std::runtime_error("unsupported diagonal constraints");
   }
 
+  /*!
+  \brief Visitor
+  \throw std::runtime_error : as parametric constraints are not supported by diagonal-free solver
+  */
+  virtual void visit(tchecker::typed_param_clkconstr_expression_t const & expr)
+  {
+    throw std::runtime_error("unsupported parametric constraints");
+  }
+
   // Other visitors on expressions
   virtual void visit(tchecker::typed_int_expression_t const &) {}
   virtual void visit(tchecker::typed_var_expression_t const &) {}
@@ -407,6 +416,12 @@ public:
       for (tchecker::clock_id_t rclock = rclocks.begin(); rclock != rclocks.end(); ++rclock)
         _solver->add_assignment(_src, _tgt, lclock, rclock, value);
   }
+
+  /*!
+  \brief Visitor
+  \post No constraint generated for clock assignment x:=p
+  */
+  virtual void visit(tchecker::typed_param_to_clock_assign_statement_t const &) {}
 
   // Other visitors on statements
   virtual void visit(tchecker::typed_nop_statement_t const &) {}
@@ -517,6 +532,17 @@ public:
   virtual void visit(tchecker::typed_sum_to_clock_assign_statement_t const & stmt)
   {
     tchecker::range_t<tchecker::variable_id_t> range = tchecker::extract_lvalue_variable_ids(stmt.lclock());
+    if (range.begin() + 1 == range.end())
+      _inserter = range.begin();
+  }
+
+  /*!
+  \brief Visitor
+  \post the base clock of the lvalue of stmt has been inserted if its ID can be determined
+  */
+  virtual void visit(tchecker::typed_param_to_clock_assign_statement_t const & stmt)
+  {
+    tchecker::range_t<tchecker::variable_id_t> range = tchecker::extract_lvalue_variable_ids(stmt.clock());
     if (range.begin() + 1 == range.end())
       _inserter = range.begin();
   }

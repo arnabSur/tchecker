@@ -166,8 +166,9 @@ find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
   message(WARNING "Doxygen not found: API documentation not installed.")
 else()
-  set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/../doc/Doxyfile.in)
+  set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in)
   set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/doc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
   configure_file(${doxyfile_in} ${doxyfile} @ONLY)
 

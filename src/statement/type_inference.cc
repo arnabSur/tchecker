@@ -24,6 +24,9 @@ enum tchecker::statement_type_t type_assign(enum tchecker::expression_type_t lty
   if (clock_assignable(ltype) && (rtype == tchecker::EXPR_TYPE_INTCLKSUM))
     return tchecker::STMT_TYPE_CLKASSIGN_SUM;
 
+  if (clock_assignable(ltype) && param_valued(rtype))
+    return tchecker::STMT_TYPE_CLKASSIGN_PARAM;
+
   return tchecker::STMT_TYPE_BAD;
 }
 

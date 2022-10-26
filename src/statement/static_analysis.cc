@@ -24,8 +24,9 @@ public:
    \brief Constructor
    */
   extract_read_variables_visitor_t(std::unordered_set<tchecker::clock_id_t> & clocks,
-                                   std::unordered_set<tchecker::intvar_id_t> & intvars)
-      : _clocks(clocks), _intvars(intvars)
+                                   std::unordered_set<tchecker::intvar_id_t> & intvars,
+                                   std::unordered_set<tchecker::param_id_t> & params)
+      : _clocks(clocks), _intvars(intvars), _params(params)
   {
   }
 
@@ -61,8 +62,8 @@ public:
    */
   virtual void visit(tchecker::typed_assign_statement_t const & stmt)
   {
-    tchecker::extract_variables(stmt.rvalue(), _clocks, _intvars);
-    tchecker::extract_lvalue_offset_variable_ids(stmt.lvalue(), _clocks, _intvars);
+    tchecker::extract_variables(stmt.rvalue(), _clocks, _intvars, _params);
+    tchecker::extract_lvalue_offset_variable_ids(stmt.lvalue(), _clocks, _intvars, _params);
   }
 
   /*!
@@ -70,8 +71,8 @@ public:
    */
   virtual void visit(tchecker::typed_int_to_clock_assign_statement_t const & stmt)
   {
-    tchecker::extract_variables(stmt.value(), _clocks, _intvars);
-    tchecker::extract_lvalue_offset_variable_ids(stmt.clock(), _clocks, _intvars);
+    tchecker::extract_variables(stmt.value(), _clocks, _intvars, _params);
+    tchecker::extract_lvalue_offset_variable_ids(stmt.clock(), _clocks, _intvars, _params);
   }
 
   /*!
@@ -79,8 +80,8 @@ public:
    */
   virtual void visit(tchecker::typed_clock_to_clock_assign_statement_t const & stmt)
   {
-    tchecker::extract_variables(stmt.rclock(), _clocks, _intvars);
-    tchecker::extract_lvalue_offset_variable_ids(stmt.lclock(), _clocks, _intvars);
+    tchecker::extract_variables(stmt.rclock(), _clocks, _intvars, _params);
+    tchecker::extract_lvalue_offset_variable_ids(stmt.lclock(), _clocks, _intvars, _params);
   }
 
   /*!
@@ -88,9 +89,18 @@ public:
    */
   virtual void visit(tchecker::typed_sum_to_clock_assign_statement_t const & stmt)
   {
-    tchecker::extract_variables(stmt.rclock(), _clocks, _intvars);
-    tchecker::extract_variables(stmt.value(), _clocks, _intvars);
-    tchecker::extract_lvalue_offset_variable_ids(stmt.lclock(), _clocks, _intvars);
+    tchecker::extract_variables(stmt.rclock(), _clocks, _intvars, _params);
+    tchecker::extract_variables(stmt.value(), _clocks, _intvars, _params);
+    tchecker::extract_lvalue_offset_variable_ids(stmt.lclock(), _clocks, _intvars, _params);
+  }
+
+  /*!
+   \brief Add variable IDs from the right-hand side value of stmt to the sets
+   */
+  virtual void visit(tchecker::typed_param_to_clock_assign_statement_t const & stmt)
+  {
+    tchecker::extract_variables(stmt.value(), _clocks, _intvars, _params);
+    tchecker::extract_lvalue_offset_variable_ids(stmt.clock(), _clocks, _intvars, _params);
   }
 
   /* other visitors */
@@ -105,38 +115,39 @@ public:
 
   virtual void visit(tchecker::typed_if_statement_t const & stmt)
   {
-    tchecker::extract_variables(stmt.condition(), _clocks, _intvars);
+    tchecker::extract_variables(stmt.condition(), _clocks, _intvars, _params);
     stmt.then_stmt().visit(*this);
     stmt.else_stmt().visit(*this);
   }
 
   virtual void visit(tchecker::typed_while_statement_t const & stmt)
   {
-    tchecker::extract_variables(stmt.condition(), _clocks, _intvars);
+    tchecker::extract_variables(stmt.condition(), _clocks, _intvars, _params);
     stmt.statement().visit(*this);
   }
 
   virtual void visit(tchecker::typed_local_var_statement_t const & stmt)
   {
-    tchecker::extract_variables(stmt.initial_value(), _clocks, _intvars);
+    tchecker::extract_variables(stmt.initial_value(), _clocks, _intvars, _params);
   }
 
   virtual void visit(tchecker::typed_local_array_statement_t const & stmt)
   {
-    tchecker::extract_variables(stmt.size(), _clocks, _intvars);
+    tchecker::extract_variables(stmt.size(), _clocks, _intvars, _params);
   }
 
 private:
   std::unordered_set<tchecker::clock_id_t> & _clocks;   /*!< Set of clock IDs */
   std::unordered_set<tchecker::intvar_id_t> & _intvars; /*!< Set of integer variable IDs */
+  std::unordered_set<tchecker::param_id_t> & _params; /*!< Set of parameter IDs */
 };
 
 } // end of namespace details
 
 void extract_read_variables(tchecker::typed_statement_t const & stmt, std::unordered_set<tchecker::clock_id_t> & clocks,
-                            std::unordered_set<tchecker::intvar_id_t> & intvars)
+                            std::unordered_set<tchecker::intvar_id_t> & intvars, std::unordered_set<tchecker::param_id_t> & params)
 {
-  tchecker::details::extract_read_variables_visitor_t v(clocks, intvars);
+  tchecker::details::extract_read_variables_visitor_t v(clocks, intvars, params);
   stmt.visit(v);
 }
 
@@ -154,8 +165,9 @@ public:
    \brief Constructor
    */
   extract_written_variables_visitor_t(std::unordered_set<tchecker::clock_id_t> & clocks,
-                                      std::unordered_set<tchecker::intvar_id_t> & intvars)
-      : _clocks(clocks), _intvars(intvars)
+                                      std::unordered_set<tchecker::intvar_id_t> & intvars,
+                                      std::unordered_set<tchecker::param_id_t> & params)
+      : _clocks(clocks), _intvars(intvars), _params(params)
   {
   }
 
@@ -191,7 +203,7 @@ public:
    */
   virtual void visit(tchecker::typed_assign_statement_t const & stmt)
   {
-    tchecker::extract_lvalue_base_variable_ids(stmt.lvalue(), _clocks, _intvars);
+    tchecker::extract_lvalue_base_variable_ids(stmt.lvalue(), _clocks, _intvars, _params);
   }
 
   /*!
@@ -199,7 +211,7 @@ public:
    */
   virtual void visit(tchecker::typed_int_to_clock_assign_statement_t const & stmt)
   {
-    tchecker::extract_lvalue_base_variable_ids(stmt.clock(), _clocks, _intvars);
+    tchecker::extract_lvalue_base_variable_ids(stmt.clock(), _clocks, _intvars, _params);
   }
 
   /*!
@@ -207,7 +219,7 @@ public:
    */
   virtual void visit(tchecker::typed_clock_to_clock_assign_statement_t const & stmt)
   {
-    tchecker::extract_lvalue_base_variable_ids(stmt.lclock(), _clocks, _intvars);
+    tchecker::extract_lvalue_base_variable_ids(stmt.lclock(), _clocks, _intvars, _params);
   }
 
   /*!
@@ -215,7 +227,15 @@ public:
    */
   virtual void visit(tchecker::typed_sum_to_clock_assign_statement_t const & stmt)
   {
-    tchecker::extract_lvalue_base_variable_ids(stmt.lclock(), _clocks, _intvars);
+    tchecker::extract_lvalue_base_variable_ids(stmt.lclock(), _clocks, _intvars, _params);
+  }
+
+  /*!
+   \brief Add variable IDs from the left-hand side clock of stmt to the sets
+   */
+  virtual void visit(tchecker::typed_param_to_clock_assign_statement_t const & stmt)
+  {
+    tchecker::extract_lvalue_base_variable_ids(stmt.clock(), _clocks, _intvars, _params);
   }
 
   /* other visitors */
@@ -242,6 +262,7 @@ public:
 private:
   std::unordered_set<tchecker::clock_id_t> & _clocks;   /*!< Set of clock IDs */
   std::unordered_set<tchecker::intvar_id_t> & _intvars; /*!< Set of integer variable IDs */
+  std::unordered_set<tchecker::param_id_t> & _params; /*!< Set of parameter IDs */
 };
 
 } // end of namespace details
@@ -257,9 +278,9 @@ private:
  set (according to the type of x) for all k in the domain of x
  */
 void extract_written_variables(tchecker::typed_statement_t const & stmt, std::unordered_set<tchecker::clock_id_t> & clocks,
-                               std::unordered_set<tchecker::intvar_id_t> & intvars)
+                               std::unordered_set<tchecker::intvar_id_t> & intvars, std::unordered_set<tchecker::param_id_t> & params)
 {
-  tchecker::details::extract_written_variables_visitor_t v(clocks, intvars);
+  tchecker::details::extract_written_variables_visitor_t v(clocks, intvars, params);
   stmt.visit(v);
 }
 
@@ -319,6 +340,7 @@ public:
   virtual void visit(tchecker::typed_int_to_clock_assign_statement_t const & stmt) {}
   virtual void visit(tchecker::typed_clock_to_clock_assign_statement_t const & stmt) {}
   virtual void visit(tchecker::typed_sum_to_clock_assign_statement_t const & stmt) {}
+  virtual void visit(tchecker::typed_param_to_clock_assign_statement_t const & stmt) {}
   virtual void visit(tchecker::typed_nop_statement_t const &) {}
   virtual void visit(tchecker::typed_if_statement_t const & stmt) {}
   virtual void visit(tchecker::typed_while_statement_t const & stmt) {}

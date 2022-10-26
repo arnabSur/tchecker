@@ -26,17 +26,18 @@ namespace tchecker {
  \brief Type of statements
  */
 enum statement_type_t {
-  STMT_TYPE_BAD = 0,       // Bad type
-  STMT_TYPE_NOP,           // No-operation
-  STMT_TYPE_INTASSIGN,     // Assignment to integer variable
-  STMT_TYPE_CLKASSIGN_INT, // Assignment: integer to clock variable
-  STMT_TYPE_CLKASSIGN_CLK, // Assignment: clock to clock variable
-  STMT_TYPE_CLKASSIGN_SUM, // Assignment: integer+clock to clock variable
-  STMT_TYPE_SEQ,           // Sequence of statements
-  STMT_TYPE_IF,            // If-Then-Else statement
-  STMT_TYPE_WHILE,         // While statement
-  STMT_TYPE_LOCAL_INT,     // Local variable declaration
-  STMT_TYPE_LOCAL_ARRAY,   // Local array declaration
+  STMT_TYPE_BAD = 0,         // Bad type
+  STMT_TYPE_NOP,             // No-operation
+  STMT_TYPE_INTASSIGN,       // Assignment to integer variable
+  STMT_TYPE_CLKASSIGN_INT,   // Assignment: integer to clock variable
+  STMT_TYPE_CLKASSIGN_CLK,   // Assignment: clock to clock variable
+  STMT_TYPE_CLKASSIGN_SUM,   // Assignment: integer+clock to clock variable
+  STMT_TYPE_CLKASSIGN_PARAM, // ssignment: parameter to clock variable
+  STMT_TYPE_SEQ,             // Sequence of statements
+  STMT_TYPE_IF,              // If-Then-Else statement
+  STMT_TYPE_WHILE,           // While statement
+  STMT_TYPE_LOCAL_INT,       // Local variable declaration
+  STMT_TYPE_LOCAL_ARRAY,     // Local array declaration
 };
 
 /*!
@@ -55,6 +56,7 @@ class typed_assign_statement_t;
 class typed_int_to_clock_assign_statement_t;
 class typed_clock_to_clock_assign_statement_t;
 class typed_sum_to_clock_assign_statement_t;
+class typed_param_to_clock_assign_statement_t;
 class typed_sequence_statement_t;
 class typed_if_statement_t;
 class typed_while_statement_t;
@@ -105,6 +107,7 @@ public:
   virtual void visit(tchecker::typed_int_to_clock_assign_statement_t const &) = 0;
   virtual void visit(tchecker::typed_clock_to_clock_assign_statement_t const &) = 0;
   virtual void visit(tchecker::typed_sum_to_clock_assign_statement_t const &) = 0;
+  virtual void visit(tchecker::typed_param_to_clock_assign_statement_t const &) = 0;
   virtual void visit(tchecker::typed_sequence_statement_t const &) = 0;
   virtual void visit(tchecker::typed_if_statement_t const &) = 0;
   virtual void visit(tchecker::typed_while_statement_t const &) = 0;
@@ -395,6 +398,47 @@ public:
     auto const & sum = dynamic_cast<tchecker::typed_binary_expression_t const &>(rvalue());
     return dynamic_cast<tchecker::typed_expression_t const &>(sum.left_operand());
   }
+
+protected:
+  /*!
+   \brief Visit
+   \param v : visitor
+   */
+  virtual void do_visit(tchecker::typed_statement_visitor_t & v) const;
+
+  using tchecker::typed_assign_statement_t::do_visit;
+};
+
+/*!
+ \class typed_param_to_clock_assign_statement_t
+ \brief Typed param-to-clock assign statement (x := p)
+ */
+class typed_param_to_clock_assign_statement_t : public tchecker::typed_assign_statement_t {
+public:
+  /*!
+   \brief Constructor
+   \param type : statement type
+   \param lvalue : left value expression
+   \param rvalue : right value expression
+   \pre lvalue->size() == 1 (assignable)
+   \throw std::invalid_argument : if precondition is violated
+   \note this takes ownership on lvalue and rvalue
+   */
+  typed_param_to_clock_assign_statement_t(enum tchecker::statement_type_t type,
+                                        tchecker::typed_lvalue_expression_t const * lvalue,
+                                        tchecker::typed_expression_t const * rvalue);
+
+  /*!
+   \brief Accessor
+   \return clock expression (i.e. x in x:=c)
+   */
+  inline tchecker::typed_lvalue_expression_t const & clock() const { return lvalue(); }
+
+  /*!
+   \brief Accessor
+   \return value expression (i.e. c in x:=c)
+   */
+  inline tchecker::typed_expression_t const & value() const { return rvalue(); }
 
 protected:
   /*!

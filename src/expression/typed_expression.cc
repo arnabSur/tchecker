@@ -46,6 +46,12 @@ std::ostream & operator<<(std::ostream & os, enum tchecker::expression_type_t ty
     return os << "CLKCONSTR_DIAGONAL";
   case EXPR_TYPE_CONJUNCTIVE_FORMULA:
     return os << "CONJUNCTIVE_FORMULA";
+  case EXPR_TYPE_PARAMVAR:
+    return os << "PARAMVAR";
+  case EXPR_TYPE_PARAMARRAY:
+    return os << "PARAMARRAY";
+  case EXPR_TYPE_CLKCONSTR_PARAM:
+    return os << "CLKCONSTR_PARAM";
   default:
     throw std::runtime_error("incomplete switch statement");
   }
@@ -223,6 +229,18 @@ typed_diagonal_clkconstr_expression_t::typed_diagonal_clkconstr_expression_t(enu
 }
 
 void typed_diagonal_clkconstr_expression_t::do_visit(tchecker::typed_expression_visitor_t & v) const { v.visit(*this); }
+
+/* typed_param_clkconstr_expression_t */
+
+typed_param_clkconstr_expression_t::typed_param_clkconstr_expression_t(enum tchecker::expression_type_t type,
+                                                                         enum tchecker::binary_operator_t op,
+                                                                         tchecker::typed_expression_t * left,
+                                                                         tchecker::typed_expression_t * right)
+    : tchecker::typed_binary_expression_t(type, op, left, right)
+{
+}
+
+void typed_param_clkconstr_expression_t::do_visit(tchecker::typed_expression_visitor_t & v) const { v.visit(*this); }
 
 /* typed_ite_expression_t */
 

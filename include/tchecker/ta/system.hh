@@ -96,6 +96,14 @@ public:
   */
   static tchecker::system::attribute_keys_map_t const & known_attributes();
 
+  // Bounded Parameters
+  using tchecker::system::params_t::parameters;
+  using tchecker::system::params_t::param_attributes;
+  using tchecker::system::params_t::param_id;
+  using tchecker::system::params_t::param_name;
+  using tchecker::system::params_t::params_count;
+  using tchecker::system::params_t::is_param;
+
   // Clocks
   using tchecker::syncprod::system_t::clock_attributes;
   using tchecker::syncprod::system_t::clock_id;

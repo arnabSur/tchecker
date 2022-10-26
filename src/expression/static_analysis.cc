@@ -375,6 +375,11 @@ public:
     throw std::invalid_argument("not an lvalue expression");
   }
 
+  virtual void visit(tchecker::typed_param_clkconstr_expression_t const &)
+  {
+    throw std::invalid_argument("not an lvalue expression");
+  }
+
   virtual void visit(tchecker::typed_ite_expression_t const &) { throw std::invalid_argument("not an lvalue expression"); }
 
 protected:
@@ -403,7 +408,8 @@ tchecker::range_t<tchecker::variable_id_t> extract_lvalue_variable_ids(tchecker:
 
 void extract_lvalue_base_variable_ids(tchecker::typed_lvalue_expression_t const & expr,
                                       std::unordered_set<tchecker::clock_id_t> & clocks,
-                                      std::unordered_set<tchecker::intvar_id_t> & intvars)
+                                      std::unordered_set<tchecker::intvar_id_t> & intvars,
+                                      std::unordered_set<tchecker::param_id_t> & params)
 {
   tchecker::details::base_variable_ids_extractor_t extractor;
   try {
@@ -417,6 +423,9 @@ void extract_lvalue_base_variable_ids(tchecker::typed_lvalue_expression_t const 
     else if ((type == tchecker::EXPR_TYPE_INTVAR) || (type == tchecker::EXPR_TYPE_INTARRAY))
       for (tchecker::intvar_id_t id = ids.begin(); id != ids.end(); ++id)
         intvars.insert(id);
+    else if ((type == tchecker::EXPR_TYPE_PARAMVAR) || (type == tchecker::EXPR_TYPE_PARAMARRAY))
+      for (tchecker::param_id_t id = ids.begin(); id != ids.end(); ++id)
+        params.insert(id);
   }
   catch (...) {
     throw;
@@ -438,10 +447,12 @@ public:
    \brief Constructor
    \param clocks : set of clock IDs
    \param intvars : set of integer variable IDs
+   \param params : set of parameter IDs
    */
   extract_offset_variables_visitor_t(std::unordered_set<tchecker::clock_id_t> & clocks,
-                                     std::unordered_set<tchecker::intvar_id_t> & intvars)
-      : _clocks(clocks), _intvars(intvars)
+                                     std::unordered_set<tchecker::intvar_id_t> & intvars,
+                                     std::unordered_set<tchecker::param_id_t> & params)
+      : _clocks(clocks), _intvars(intvars), _params(params)
   {
   }
 
@@ -482,7 +493,7 @@ public:
    */
   virtual void visit(tchecker::typed_array_expression_t const & expr)
   {
-    tchecker::extract_variables(expr.offset(), _clocks, _intvars);
+    tchecker::extract_variables(expr.offset(), _clocks, _intvars, _params);
   }
 
   /* Other visitors (throw: not an lvalue expression) */
@@ -511,20 +522,27 @@ public:
     throw std::invalid_argument("not an lvalue expression");
   }
 
+  virtual void visit(tchecker::typed_param_clkconstr_expression_t const & expr)
+  {
+    throw std::invalid_argument("not an lvalue expression");
+  }
+
   virtual void visit(tchecker::typed_ite_expression_t const & expr) { throw std::invalid_argument("not an lvalue expression"); }
 
 private:
   std::unordered_set<tchecker::clock_id_t> & _clocks;   /*!< Set of clock IDs */
   std::unordered_set<tchecker::intvar_id_t> & _intvars; /*!< Set of integer variable IDs */
+  std::unordered_set<tchecker::param_id_t> & _params; /*!< Set of parameter IDs */
 };
 
 } // end of namespace details
 
 void extract_lvalue_offset_variable_ids(tchecker::typed_lvalue_expression_t const & expr,
                                         std::unordered_set<tchecker::clock_id_t> & clocks,
-                                        std::unordered_set<tchecker::intvar_id_t> & intvars)
+                                        std::unordered_set<tchecker::intvar_id_t> & intvars,
+                                        std::unordered_set<tchecker::param_id_t> & params)
 {
-  tchecker::details::extract_offset_variables_visitor_t v(clocks, intvars);
+  tchecker::details::extract_offset_variables_visitor_t v(clocks, intvars, params);
   expr.visit(v);
 }
 
@@ -544,8 +562,9 @@ public:
    \param intvars : set of integer variable IDs
    */
   extract_variables_visitor_t(std::unordered_set<tchecker::clock_id_t> & clocks,
-                              std::unordered_set<tchecker::intvar_id_t> & intvars)
-      : _clocks(clocks), _intvars(intvars)
+                              std::unordered_set<tchecker::intvar_id_t> & intvars,
+                              std::unordered_set<tchecker::param_id_t> & params)
+      : _clocks(clocks), _intvars(intvars), _params(params)
   {
   }
 
@@ -631,6 +650,12 @@ public:
     expr.right_operand().visit(*this);
   }
 
+  virtual void visit(tchecker::typed_param_clkconstr_expression_t const & expr)
+  {
+    expr.left_operand().visit(*this);
+    expr.right_operand().visit(*this);
+  }
+
   virtual void visit(tchecker::typed_ite_expression_t const & expr)
   {
     expr.condition().visit(*this);
@@ -648,20 +673,23 @@ private:
       _intvars.insert(id);
     else if ((type == tchecker::EXPR_TYPE_CLKVAR) || (type == tchecker::EXPR_TYPE_CLKARRAY))
       _clocks.insert(id);
+    else if ((type == tchecker::EXPR_TYPE_PARAMVAR) || (type == tchecker::EXPR_TYPE_PARAMARRAY))
+      _params.insert(id);
     else
       throw std::invalid_argument("typed expression is not well-typed");
   }
 
   std::unordered_set<tchecker::clock_id_t> & _clocks;   /*!< Set of clock IDs */
   std::unordered_set<tchecker::intvar_id_t> & _intvars; /*!< Set of integer variable IDs */
+  std::unordered_set<tchecker::param_id_t> & _params;    /*!< Set of parameter IDs */
 };
 
 } // end of namespace details
 
 void extract_variables(tchecker::typed_expression_t const & expr, std::unordered_set<tchecker::clock_id_t> & clocks,
-                       std::unordered_set<tchecker::intvar_id_t> & intvars)
+                       std::unordered_set<tchecker::intvar_id_t> & intvars, std::unordered_set<tchecker::param_id_t> & params)
 {
-  tchecker::details::extract_variables_visitor_t v(clocks, intvars);
+  tchecker::details::extract_variables_visitor_t v(clocks, intvars, params);
   expr.visit(v);
 }
 

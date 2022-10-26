@@ -64,6 +64,20 @@ bool clock_assignable(enum tchecker::expression_type_t type);
 /*!
  \brief Type inference
  \param type : type to check
+ \return true if type dereferences to a parameter value, false otherwise
+ */
+bool param_dereference(enum tchecker::expression_type_t type);
+
+/*!
+ \brief Type inference
+ \param type : type to check
+ \return true if type represents a parameter value, false otherwise
+ */
+bool param_valued(enum tchecker::expression_type_t type);
+
+/*!
+ \brief Type inference
+ \param type : type to check
  \return true if type represents a boolean value, false otherwise
  */
 bool bool_valued(enum tchecker::expression_type_t type);

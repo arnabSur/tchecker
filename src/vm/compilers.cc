@@ -150,6 +150,8 @@ public:
 
   virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr) { not_supported(expr); }
 
+  virtual void visit(tchecker::typed_param_clkconstr_expression_t const & expr) { not_supported(expr); }
+
   virtual void visit(tchecker::typed_ite_expression_t const & expr) { not_supported(expr); }
 
 protected:
@@ -359,6 +361,19 @@ public:
 
     compile_clock_predicate(expr.first_clock(), expr.second_clock(), expr.bound(),
                             operator_to_instruction(expr.binary_operator()));
+  }
+
+  /*
+   see compile_clock_predicate
+   */
+  virtual void visit(tchecker::typed_param_clkconstr_expression_t const & expr)
+  {
+    if (expr.type() != tchecker::EXPR_TYPE_CLKCONSTR_PARAM)
+      invalid_expression(expr, "a parametric clock constraint");
+
+    tchecker::typed_var_expression_t ref_clock(tchecker::EXPR_TYPE_CLKVAR, tchecker::REFCLOCK_NAME, tchecker::REFCLOCK_ID, 1);
+
+    compile_clock_predicate(expr.clock(), ref_clock, expr.bound(), operator_to_instruction(expr.binary_operator()));
   }
 
   /*
@@ -675,6 +690,8 @@ public:
 
   virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr) { not_supported(expr); }
 
+  virtual void visit(tchecker::typed_param_clkconstr_expression_t const & expr) { not_supported(expr); }
+
   virtual void visit(tchecker::typed_ite_expression_t const & expr) { not_supported(expr); }
 
 protected:
@@ -784,6 +801,18 @@ public:
       throw std::invalid_argument("invalid statement");
 
     compile_clock_reset(stmt.lclock(), stmt.value(), stmt.rclock());
+  }
+
+  /*
+   see compile_clock_reset
+   */
+  virtual void visit(tchecker::typed_param_to_clock_assign_statement_t const & stmt)
+  {
+    if (stmt.type() != tchecker::STMT_TYPE_CLKASSIGN_PARAM)
+      throw std::invalid_argument("invalid statement");
+
+    tchecker::typed_var_expression_t ref_clock(tchecker::EXPR_TYPE_CLKVAR, tchecker::REFCLOCK_NAME, tchecker::REFCLOCK_ID, 1);
+    compile_clock_reset(stmt.clock(), stmt.value(), ref_clock);
   }
 
   /*

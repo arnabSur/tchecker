@@ -15,6 +15,7 @@
 #include "tchecker/statement/typed_statement.hh"
 #include "tchecker/variables/clocks.hh"
 #include "tchecker/variables/intvars.hh"
+#include "tchecker/variables/params.hh"
 
 /*!
  \file typechecking.hh
@@ -29,6 +30,7 @@ namespace tchecker {
  \param localvars: local variables
  \param intvars : integer variables
  \param clocks : clock variables
+ \param params : parameters
  \param error : error logging function
  \return typed clone of stmt
  \post errors have been reported calling function error
@@ -36,6 +38,7 @@ namespace tchecker {
 tchecker::typed_statement_t * typecheck(
     tchecker::statement_t const & stmt, tchecker::integer_variables_t const & localvars,
     tchecker::integer_variables_t const & intvars, tchecker::clock_variables_t const & clocks,
+    tchecker::parameters_t const & params,
     std::function<void(std::string const &)> error = [](std::string const &) {});
 
 } // end of namespace tchecker

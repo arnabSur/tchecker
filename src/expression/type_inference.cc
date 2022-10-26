@@ -44,6 +44,16 @@ bool clock_assignable(enum tchecker::expression_type_t type)
   return ((type == tchecker::EXPR_TYPE_CLKVAR) || (type == tchecker::EXPR_TYPE_CLKLVALUE));
 }
 
+bool param_dereference(enum tchecker::expression_type_t type)
+{
+  return ((type == tchecker::EXPR_TYPE_PARAMVAR) || (type == tchecker::EXPR_TYPE_PARAMARRAY));
+}
+
+bool param_valued(enum tchecker::expression_type_t type)
+{
+  return ((type == tchecker::EXPR_TYPE_PARAMVAR));
+}
+
 bool bool_valued(enum tchecker::expression_type_t type)
 {
   return (integer_valued(type) || (type == tchecker::EXPR_TYPE_CLKCONSTR_SIMPLE) ||
@@ -78,6 +88,8 @@ enum tchecker::expression_type_t type_binary_predicate(enum tchecker::expression
     return tchecker::EXPR_TYPE_CLKCONSTR_SIMPLE;
   if ((left == tchecker::EXPR_TYPE_CLKDIFF) && integer_valued(right))
     return tchecker::EXPR_TYPE_CLKCONSTR_DIAGONAL;
+  if (clock_valued(left) && param_valued(right))
+    return tchecker::EXPR_TYPE_CLKCONSTR_PARAM;
 
   return tchecker::EXPR_TYPE_BAD;
 }
