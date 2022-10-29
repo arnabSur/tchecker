@@ -108,7 +108,7 @@ public:
     else if ((type == tchecker::EXPR_TYPE_CLKVAR) || (type == tchecker::EXPR_TYPE_CLKARRAY))
       _typed_expr = new tchecker::typed_var_expression_t(type, expr.name(), id, size);
     // parameter
-    else if ((type == tchecker::EXPR_TYPE_PARAMVAR) || (type == tchecker::EXPR_TYPE_PARAMARRAY))
+    else if ((type == tchecker::EXPR_TYPE_PARAM) || (type == tchecker::EXPR_TYPE_PARAMARRAY))
       _typed_expr = new tchecker::typed_var_expression_t(type, expr.name(), id, size);
     // otherwise (BAD)
     else
@@ -148,6 +148,8 @@ public:
     }
     else if (clock_dereference(variable_type) && integer_valued(offset_type))
       expr_type = tchecker::EXPR_TYPE_CLKLVALUE;
+    else if (param_dereference(variable_type) && integer_valued(offset_type))
+      expr_type = tchecker::EXPR_TYPE_PARAMARRAY;
     else
       expr_type = tchecker::EXPR_TYPE_BAD;
 
@@ -306,7 +308,7 @@ protected:
    tchecker::EXPR_TYPE_CLKARRAY if name is an array of clock variables,
    tchecker::EXPR_TYPE_CLKVAR if name is a clock variable of size 1
    tchecker::EXPR_TYPE_PARAMARRAY if name is an array of parameters,
-   tchecker::EXPR_TYPE_PARAMVAR if name is a parameter of size 1
+   tchecker::EXPR_TYPE_PARAM if name is a parameter of size 1
    tchecker::EXPR_TYPE_BAD otherwise (name is not a declared variable)
    \pre name is a declared integer or clock variable
    */
@@ -356,7 +358,7 @@ protected:
       if (size > 1)
         return std::make_tuple(tchecker::EXPR_TYPE_PARAMARRAY, id, size);
       else
-        return std::make_tuple(tchecker::EXPR_TYPE_PARAMVAR, id, size);
+        return std::make_tuple(tchecker::EXPR_TYPE_PARAM, id, size);
     }
     catch (...) {
     }

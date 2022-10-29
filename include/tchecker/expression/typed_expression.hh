@@ -43,7 +43,7 @@ enum expression_type_t {
   EXPR_TYPE_CLKCONSTR_SIMPLE,    // Atomic simple clock constraint
   EXPR_TYPE_CLKCONSTR_DIAGONAL,  // Atomic diagonal clock constraint
   EXPR_TYPE_CONJUNCTIVE_FORMULA, // Conjunction of atomic formulas
-  EXPR_TYPE_PARAMVAR,            // Parameter (with size=1)
+  EXPR_TYPE_PARAM,               // Parameter (with size=1)
   EXPR_TYPE_PARAMARRAY,          // Array of parameters (with size>1)
   EXPR_TYPE_CLKCONSTR_PARAM,     // Atomic parametric clock constraint
 };

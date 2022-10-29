@@ -423,7 +423,7 @@ void extract_lvalue_base_variable_ids(tchecker::typed_lvalue_expression_t const 
     else if ((type == tchecker::EXPR_TYPE_INTVAR) || (type == tchecker::EXPR_TYPE_INTARRAY))
       for (tchecker::intvar_id_t id = ids.begin(); id != ids.end(); ++id)
         intvars.insert(id);
-    else if ((type == tchecker::EXPR_TYPE_PARAMVAR) || (type == tchecker::EXPR_TYPE_PARAMARRAY))
+    else if ((type == tchecker::EXPR_TYPE_PARAM) || (type == tchecker::EXPR_TYPE_PARAMARRAY))
       for (tchecker::param_id_t id = ids.begin(); id != ids.end(); ++id)
         params.insert(id);
   }
@@ -673,7 +673,7 @@ private:
       _intvars.insert(id);
     else if ((type == tchecker::EXPR_TYPE_CLKVAR) || (type == tchecker::EXPR_TYPE_CLKARRAY))
       _clocks.insert(id);
-    else if ((type == tchecker::EXPR_TYPE_PARAMVAR) || (type == tchecker::EXPR_TYPE_PARAMARRAY))
+    else if ((type == tchecker::EXPR_TYPE_PARAM) || (type == tchecker::EXPR_TYPE_PARAMARRAY))
       _params.insert(id);
     else
       throw std::invalid_argument("typed expression is not well-typed");

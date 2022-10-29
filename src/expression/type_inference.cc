@@ -46,19 +46,19 @@ bool clock_assignable(enum tchecker::expression_type_t type)
 
 bool param_dereference(enum tchecker::expression_type_t type)
 {
-  return ((type == tchecker::EXPR_TYPE_PARAMVAR) || (type == tchecker::EXPR_TYPE_PARAMARRAY));
+  return ((type == tchecker::EXPR_TYPE_PARAM) || (type == tchecker::EXPR_TYPE_PARAMARRAY));
 }
 
 bool param_valued(enum tchecker::expression_type_t type)
 {
-  return ((type == tchecker::EXPR_TYPE_PARAMVAR));
+  return ((type == tchecker::EXPR_TYPE_PARAM));
 }
 
 bool bool_valued(enum tchecker::expression_type_t type)
 {
   return (integer_valued(type) || (type == tchecker::EXPR_TYPE_CLKCONSTR_SIMPLE) ||
           (type == tchecker::EXPR_TYPE_CLKCONSTR_DIAGONAL) || (type == tchecker::EXPR_TYPE_ATOMIC_PREDICATE) ||
-          (type == tchecker::EXPR_TYPE_CONJUNCTIVE_FORMULA));
+          (type == tchecker::EXPR_TYPE_CONJUNCTIVE_FORMULA) || (type == tchecker::EXPR_TYPE_CLKCONSTR_PARAM));
 }
 
 enum tchecker::expression_type_t type_par(enum tchecker::expression_type_t type) { return type; }
@@ -175,6 +175,9 @@ enum tchecker::expression_type_t type_neg(enum tchecker::expression_type_t type)
 {
   if (integer_valued(type))
     return tchecker::EXPR_TYPE_INTTERM;
+
+  if (param_valued(type))
+    return tchecker::EXPR_TYPE_PARAM;
 
   return tchecker::EXPR_TYPE_BAD;
 }

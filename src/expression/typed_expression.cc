@@ -46,8 +46,8 @@ std::ostream & operator<<(std::ostream & os, enum tchecker::expression_type_t ty
     return os << "CLKCONSTR_DIAGONAL";
   case EXPR_TYPE_CONJUNCTIVE_FORMULA:
     return os << "CONJUNCTIVE_FORMULA";
-  case EXPR_TYPE_PARAMVAR:
-    return os << "PARAMVAR";
+  case EXPR_TYPE_PARAM:
+    return os << "PARAM";
   case EXPR_TYPE_PARAMARRAY:
     return os << "PARAMARRAY";
   case EXPR_TYPE_CLKCONSTR_PARAM:

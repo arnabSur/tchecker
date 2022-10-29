@@ -91,7 +91,8 @@ public:
   {
     if ((expr.type() != tchecker::EXPR_TYPE_CLKVAR) && (expr.type() != tchecker::EXPR_TYPE_INTVAR) &&
         (expr.type() != tchecker::EXPR_TYPE_LOCALINTVAR) && (expr.type() != tchecker::EXPR_TYPE_CLKARRAY) &&
-        (expr.type() != tchecker::EXPR_TYPE_INTARRAY) && (expr.type() != tchecker::EXPR_TYPE_LOCALINTARRAY))
+        (expr.type() != tchecker::EXPR_TYPE_INTARRAY) && (expr.type() != tchecker::EXPR_TYPE_LOCALINTARRAY) &&
+        (expr.type() != tchecker::EXPR_TYPE_PARAM) && (expr.type() != tchecker::EXPR_TYPE_PARAMARRAY))
       invalid_expression(expr, "a variable");
 
     // Write bytecode
@@ -219,7 +220,8 @@ public:
   {
     if ((expr.type() != tchecker::EXPR_TYPE_CLKVAR) && (expr.type() != tchecker::EXPR_TYPE_INTVAR) &&
         (expr.type() != tchecker::EXPR_TYPE_LOCALINTVAR) && (expr.type() != tchecker::EXPR_TYPE_CLKARRAY) &&
-        (expr.type() != tchecker::EXPR_TYPE_INTARRAY) && (expr.type() != tchecker::EXPR_TYPE_LOCALINTARRAY))
+        (expr.type() != tchecker::EXPR_TYPE_INTARRAY) && (expr.type() != tchecker::EXPR_TYPE_LOCALINTARRAY) &&
+        (expr.type() != tchecker::EXPR_TYPE_PARAM) && (expr.type() != tchecker::EXPR_TYPE_PARAMARRAY))
       invalid_expression(expr, "a variable");
 
     // Write bytecode (similar to lvalue, except last instruction)
@@ -326,7 +328,7 @@ public:
   {
     // NEG expresison
     if (expr.unary_operator() == tchecker::EXPR_OP_NEG) {
-      if (expr.type() != tchecker::EXPR_TYPE_INTTERM)
+      if (expr.type() != tchecker::EXPR_TYPE_INTTERM && expr.type() != tchecker::EXPR_TYPE_PARAM)
         invalid_expression(expr, "an unary expression");
     }
     // LNOT expression
