@@ -106,11 +106,8 @@ boost::dynamic_bitset<> system_t::labels(std::string const & labels) const
   std::vector<std::string> v;
   boost::split(v, labels, boost::is_any_of(","));
   for (std::string const & l : v) {
-    if (!this->is_label(l)) {
-      std::ostringstream ostr;
-      ostr << "Unknown label '" << l << "'";
-      throw std::invalid_argument(ostr.str());
-    }
+    if (!this->is_label(l))
+      throw std::invalid_argument("Unknown label '" + l + "'");
     s.set(this->label_id(l));
   }
   return s;
@@ -343,13 +340,16 @@ private:
    */
   void locations_edges_events()
   {
+    std::size_t const block_size = 10000;
+    std::size_t const table_size = 65536;
+
     tchecker::process_id_t pid = _product.process_id(_process_name);
 
     std::stack<tchecker::syncprod::state_sptr_t> waiting;
-    tchecker::syncprod::syncprod_t sp(_system, 10000);
+    tchecker::syncprod::syncprod_t sp(_system, block_size, table_size);
     std::vector<tchecker::syncprod::syncprod_t::sst_t> v;
 
-    sp.initial(v, tchecker::STATE_OK);
+    sp.initial(v);
     for (auto && [status, state, transition] : v) {
       std::string state_name = namify(*state);
       if (!_product.is_location(pid, state_name)) {
@@ -360,12 +360,12 @@ private:
     v.clear();
 
     while (!waiting.empty()) {
-      tchecker::syncprod::state_sptr_t src = waiting.top();
+      tchecker::syncprod::const_state_sptr_t src = static_cast<tchecker::syncprod::const_state_sptr_t>(waiting.top());
       waiting.pop();
 
       tchecker::loc_id_t src_id = _product.location(pid, namify(*src))->id();
 
-      sp.next(static_cast<tchecker::syncprod::const_state_sptr_t>(src), v, tchecker::STATE_OK);
+      sp.next(src, v);
       for (auto && [status, tgt, transition] : v) {
         std::string tgt_name = namify(*tgt);
         if (!_product.is_location(pid, tgt_name)) {

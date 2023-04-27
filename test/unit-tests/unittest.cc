@@ -6,14 +6,16 @@
  */
 
 #define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include "test-cache.hh"
 #include "test-db.hh"
 #include "test-dbm.hh"
 #include "test-delay_allowed.hh"
 #include "test-extract_variables.hh"
+#include "test-finite-path.hh"
 #include "test-guard_weak_sync.hh"
+#include "test-hashtable.hh"
 #include "test-labels.hh"
 #include "test-ordering.hh"
 #include "test-refdbm.hh"

@@ -398,13 +398,13 @@ public:
 
     for (tchecker::clock_id_t lclock = lclocks.begin(); lclock != lclocks.end(); ++lclock)
       for (tchecker::clock_id_t rclock = rclocks.begin(); rclock != rclocks.end(); ++rclock)
-        _solver->add_assignment(_src, lclock, _tgt, rclock, 0);
+        _solver->add_assignment(_src, _tgt, lclock, rclock, 0);
   }
 
   /*!
   \brief Visitor
   \post For assignment x:=y+c, a constraint for every clock x (x could be an array) and every clock y (y could be
-  an array) using value c has been added to _solver using method add_assignment
+  an array) using value c has been added to _solver using method add_assignment
   */
   virtual void visit(tchecker::typed_sum_to_clock_assign_statement_t const & stmt)
   {
@@ -696,7 +696,8 @@ bool compute_clockbounds(tchecker::ta::system_t const & system, tchecker::clockb
 tchecker::clockbounds::clockbounds_t * compute_clockbounds(tchecker::ta::system_t const & system)
 {
   tchecker::clockbounds::clockbounds_t * clockbounds =
-      new tchecker::clockbounds::clockbounds_t{system.locations_count(), system.clocks_count(tchecker::VK_FLATTENED)};
+      new tchecker::clockbounds::clockbounds_t{static_cast<tchecker::loc_id_t>(system.locations_count()),
+                                               static_cast<tchecker::clock_id_t>(system.clocks_count(tchecker::VK_FLATTENED))};
 
   if (tchecker::clockbounds::compute_clockbounds(system, *clockbounds))
     return clockbounds;

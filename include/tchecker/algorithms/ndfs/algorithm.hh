@@ -116,6 +116,7 @@ public:
     ts.initial(sst);
     for (auto && [status, s, t] : sst) {
       auto && [is_new_node, initial_node] = graph.add_node(s);
+      initial_node->initial(true);
       if (initial_node->color() == tchecker::algorithms::ndfs::WHITE)
         dfs_blue(ts, graph, labels, stats, initial_node);
       if (stats.cycle())
@@ -210,6 +211,7 @@ private:
       }
       else {
         node_sptr_t t = stack.top().pick_successor();
+        ++stats.visited_transitions_blue();
         if (t->color() == tchecker::algorithms::ndfs::CYAN && (accepting(s, ts, labels) || accepting(t, ts, labels))) {
           stats.cycle() = true;
           break;
@@ -301,6 +303,7 @@ private:
         stack.pop();
       else {
         node_sptr_t t = top.pick_successor(graph);
+        ++stats.visited_transitions_red();
         if (t->color() == tchecker::algorithms::ndfs::CYAN) {
           stats.cycle() = true;
           break;

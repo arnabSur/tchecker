@@ -271,64 +271,71 @@ void attributes(tchecker::ta::system_t const & system, tchecker::zg::transition_
                 std::map<std::string, std::string> & m);
 
 /*!
- \class zg_t
- \brief Zone graph of a timed automaton
+ \class zg_impl_t
+ \brief Low-level transition system implementation of a zone graph of a timed automaton
  */
-class zg_t : public tchecker::ts::full_ts_t<tchecker::zg::state_sptr_t, tchecker::zg::const_state_sptr_t,
+class zg_impl_t final : public tchecker::ts::ts_impl_t<tchecker::zg::state_sptr_t, tchecker::zg::const_state_sptr_t,
+                                                       tchecker::zg::transition_sptr_t, tchecker::zg::const_transition_sptr_t,
+                                                       tchecker::zg::initial_range_t, tchecker::zg::outgoing_edges_range_t,
+                                                       tchecker::zg::initial_value_t, tchecker::zg::outgoing_edges_value_t> {
+public:
+  // Inherited types
+  using ts_impl_t = tchecker::ts::ts_impl_t<tchecker::zg::state_sptr_t, tchecker::zg::const_state_sptr_t,
                                             tchecker::zg::transition_sptr_t, tchecker::zg::const_transition_sptr_t,
                                             tchecker::zg::initial_range_t, tchecker::zg::outgoing_edges_range_t,
-                                            tchecker::zg::initial_value_t, tchecker::zg::outgoing_edges_value_t> {
-public:
+                                            tchecker::zg::initial_value_t, tchecker::zg::outgoing_edges_value_t>;
+  using sst_t = ts_impl_t::sst_t;
+  using state_t = ts_impl_t::state_t;
+  using const_state_t = ts_impl_t::const_state_t;
+  using transition_t = ts_impl_t::transition_t;
+  using const_transition_t = ts_impl_t::const_transition_t;
+  using initial_range_t = ts_impl_t::initial_range_t;
+  using initial_value_t = ts_impl_t::initial_value_t;
+  using outgoing_edges_range_t = ts_impl_t::outgoing_edges_range_t;
+  using outgoing_edges_value_t = ts_impl_t::outgoing_edges_value_t;
+
   /*!
    \brief Constructor
    \param system : a system of timed processes
    \param semantics : a zone semantics
    \param extrapolation : a zone extrapolation
    \param block_size : number of objects allocated in a block
+   \param table_size : size of hash tables
    \note all states and transitions are pool allocated and deallocated automatically
    */
-  zg_t(std::shared_ptr<tchecker::ta::system_t const> const & system, std::unique_ptr<tchecker::zg::semantics_t> && semantics,
-       std::unique_ptr<tchecker::zg::extrapolation_t> && extrapolation, std::size_t block_size);
+  zg_impl_t(std::shared_ptr<tchecker::ta::system_t const> const & system,
+            std::shared_ptr<tchecker::zg::semantics_t> const & semantics,
+            std::shared_ptr<tchecker::zg::extrapolation_t> const & extrapolation, std::size_t block_size,
+            std::size_t table_size);
 
   /*!
    \brief Copy constructor (deleted)
    */
-  zg_t(tchecker::zg::zg_t const &) = delete;
+  zg_impl_t(tchecker::zg::zg_impl_t const &) = delete;
 
   /*!
    \brief Move constructor (deleted)
    */
-  zg_t(tchecker::zg::zg_t &&) = delete;
+  zg_impl_t(tchecker::zg::zg_impl_t &&) = delete;
 
   /*!
    \brief Destructor
    */
-  virtual ~zg_t() = default;
+  virtual ~zg_impl_t() = default;
 
   /*!
    \brief Assignment operator (deleted)
    */
-  tchecker::zg::zg_t & operator=(tchecker::zg::zg_t const &) = delete;
+  tchecker::zg::zg_impl_t & operator=(tchecker::zg::zg_impl_t const &) = delete;
 
   /*!
    \brief Move-assignment operator (deleted)
    */
-  tchecker::zg::zg_t & operator=(tchecker::zg::zg_t &&) = delete;
+  tchecker::zg::zg_impl_t & operator=(tchecker::zg::zg_impl_t &&) = delete;
 
-  using tchecker::ts::full_ts_t<tchecker::zg::state_sptr_t, tchecker::zg::const_state_sptr_t, tchecker::zg::transition_sptr_t,
-                                tchecker::zg::const_transition_sptr_t, tchecker::zg::initial_range_t,
-                                tchecker::zg::outgoing_edges_range_t, tchecker::zg::initial_value_t,
-                                tchecker::zg::outgoing_edges_value_t>::status;
-
-  using tchecker::ts::full_ts_t<tchecker::zg::state_sptr_t, tchecker::zg::const_state_sptr_t, tchecker::zg::transition_sptr_t,
-                                tchecker::zg::const_transition_sptr_t, tchecker::zg::initial_range_t,
-                                tchecker::zg::outgoing_edges_range_t, tchecker::zg::initial_value_t,
-                                tchecker::zg::outgoing_edges_value_t>::state;
-
-  using tchecker::ts::full_ts_t<tchecker::zg::state_sptr_t, tchecker::zg::const_state_sptr_t, tchecker::zg::transition_sptr_t,
-                                tchecker::zg::const_transition_sptr_t, tchecker::zg::initial_range_t,
-                                tchecker::zg::outgoing_edges_range_t, tchecker::zg::initial_value_t,
-                                tchecker::zg::outgoing_edges_value_t>::transition;
+  using ts_impl_t::state;
+  using ts_impl_t::status;
+  using ts_impl_t::transition;
 
   /*!
    \brief Accessor
@@ -344,6 +351,8 @@ public:
    and initial transition t that are initialized from init_edge.
    */
   virtual void initial(tchecker::zg::initial_value_t const & init_edge, std::vector<sst_t> & v);
+
+  using ts_impl_t::initial;
 
   /*!
    \brief Accessor
@@ -363,15 +372,7 @@ public:
   virtual void next(tchecker::zg::const_state_sptr_t const & s, tchecker::zg::outgoing_edges_value_t const & out_edge,
                     std::vector<sst_t> & v);
 
-  using tchecker::ts::full_ts_t<tchecker::zg::state_sptr_t, tchecker::zg::const_state_sptr_t, tchecker::zg::transition_sptr_t,
-                                tchecker::zg::const_transition_sptr_t, tchecker::zg::initial_range_t,
-                                tchecker::zg::outgoing_edges_range_t, tchecker::zg::initial_value_t,
-                                tchecker::zg::outgoing_edges_value_t>::initial;
-
-  using tchecker::ts::full_ts_t<tchecker::zg::state_sptr_t, tchecker::zg::const_state_sptr_t, tchecker::zg::transition_sptr_t,
-                                tchecker::zg::const_transition_sptr_t, tchecker::zg::initial_range_t,
-                                tchecker::zg::outgoing_edges_range_t, tchecker::zg::initial_value_t,
-                                tchecker::zg::outgoing_edges_value_t>::next;
+  using ts_impl_t::next;
 
   /*!
     \brief Checks if a state satisfies a set of labels
@@ -406,6 +407,28 @@ public:
   virtual void attributes(tchecker::zg::const_transition_sptr_t const & t, std::map<std::string, std::string> & m) const;
 
   /*!
+   \brief Share state components
+   \param s : a state
+   \post internal components in s have been shared
+   \note THE RESULTING STATE SHOULD NOT BE MODIFIED
+  */
+  virtual void share(tchecker::zg::state_sptr_t & s);
+
+  /*!
+   \brief Share transition components
+   \param t : a transition
+   \post internal components in t have been shared
+   \note THE RESULTING TRANSITION SHOULD NOT BE MODIFIED
+  */
+  virtual void share(tchecker::zg::transition_sptr_t & t);
+
+  /*!
+   \brief Accessor
+   \return Pointer to underlying system of timed processes
+  */
+  std::shared_ptr<tchecker::ta::system_t const> system_ptr() const;
+
+  /*!
    \brief Accessor
    \return Underlying system of timed processes
    */
@@ -413,11 +436,108 @@ public:
 
 private:
   std::shared_ptr<tchecker::ta::system_t const> _system;           /*!< System of timed processes */
-  std::unique_ptr<tchecker::zg::semantics_t> _semantics;           /*!< Zone semantics */
-  std::unique_ptr<tchecker::zg::extrapolation_t> _extrapolation;   /*!< Zone extrapolation */
+  std::shared_ptr<tchecker::zg::semantics_t> _semantics;           /*!< Zone semantics */
+  std::shared_ptr<tchecker::zg::extrapolation_t> _extrapolation;   /*!< Zone extrapolation */
   tchecker::zg::state_pool_allocator_t _state_allocator;           /*!< Pool allocator of states */
   tchecker::zg::transition_pool_allocator_t _transition_allocator; /*! Pool allocator of transitions */
 };
+
+/*!
+ \class zg_t
+ \brief Zone graph of a timed automaton with states and transitions allocation
+ \note all returned states and transitions deallocated automatically
+ */
+class zg_t final : public tchecker::ts::make_ts_from_impl_t<tchecker::zg::zg_impl_t> {
+public:
+  using tchecker::ts::make_ts_from_impl_t<tchecker::zg::zg_impl_t>::make_ts_from_impl_t;
+
+  /*!
+   \brief Destructor
+  */
+  virtual ~zg_t() = default;
+
+  /*!
+   \brief Accessor
+   \return Pointer to underlying system of timed processes
+  */
+  std::shared_ptr<tchecker::ta::system_t const> system_ptr() const;
+
+  /*!
+   \brief Accessor
+   \return Underlying system of timed processes
+   */
+  tchecker::ta::system_t const & system() const;
+};
+
+/*!
+ \class sharing_zg_t
+ \brief Zone graph of a timed automaton with states and transitions allocation,
+ as well as states and transitions sharing
+ \note all returned states and transitions deallocated automatically
+ */
+class sharing_zg_t final : public tchecker::ts::make_sharing_ts_from_impl_t<tchecker::zg::zg_impl_t> {
+public:
+  using tchecker::ts::make_sharing_ts_from_impl_t<tchecker::zg::zg_impl_t>::make_sharing_ts_from_impl_t;
+
+  /*!
+   \brief Destructor
+  */
+  virtual ~sharing_zg_t() = default;
+
+  /*!
+   \brief Accessor
+   \return Pointer to underlying system of timed processes
+  */
+  std::shared_ptr<tchecker::ta::system_t const> system_ptr() const;
+
+  /*!
+   \brief Accessor
+   \return Underlying system of timed processes
+   */
+  tchecker::ta::system_t const & system() const;
+};
+
+/*!
+ \brief Compute initial state of a zone graph from a tuple of locations
+ \param zg : zone graph
+ \param vloc : tuple of locations
+ \param mask : state status mask
+ \return the initial state of zg with tuple of locations vloc and status
+ compatible with mask if any, nullptr otherwise
+ */
+template <class ZG>
+tchecker::zg::state_sptr_t initial(ZG & zg, tchecker::vloc_t const & vloc, tchecker::state_status_t mask = tchecker::STATE_OK)
+{
+  std::vector<typename ZG::sst_t> v;
+  zg.initial(v, mask);
+  for (auto && [status, s, t] : v) {
+    if (s->vloc() == vloc)
+      return s;
+  }
+  return nullptr;
+}
+
+/*!
+ \brief Compute next state and transition from a tuple of edges
+ \param zg : zone graph
+ \param s : state
+ \param vedge : tuple of edges
+ \param mask : next state status mask
+ \return the pair (nexts, nextt) of successor state and transition of s
+ along tuple of edges vedge if any, (nullptr, nullptr) otherwise
+ */
+template <class ZG>
+std::tuple<tchecker::zg::state_sptr_t, tchecker::zg::transition_sptr_t>
+next(ZG & zg, tchecker::zg::const_state_sptr_t const & s, tchecker::vedge_t const & vedge,
+     tchecker::state_status_t mask = tchecker::STATE_OK)
+{
+  std::vector<typename ZG::sst_t> v;
+  zg.next(s, v, mask);
+  for (auto && [status, nexts, nextt] : v)
+    if (nextt->vedge() == vedge)
+      return std::make_tuple(nexts, nextt);
+  return std::make_tuple(nullptr, nullptr);
+}
 
 /*!
  \brief Factory of zone graphs
@@ -425,6 +545,7 @@ private:
  \param semantics_type : type of zone semantics
  \param extrapolation_type : type of zone extrapolation
  \param block_size : number of objects allocated in a block
+ \param table_size : size of hash tables
  \return a zone graph over system with zone semantics and zone extrapolation
  defined from semantics_type and extrapolation_type, and allocation of
  block_size objects at a time, nullptr if clock bounds cannot be inferred from
@@ -432,7 +553,8 @@ private:
  */
 tchecker::zg::zg_t * factory(std::shared_ptr<tchecker::ta::system_t const> const & system,
                              enum tchecker::zg::semantics_type_t semantics_type,
-                             enum tchecker::zg::extrapolation_type_t extrapolation_type, std::size_t block_size);
+                             enum tchecker::zg::extrapolation_type_t extrapolation_type, std::size_t block_size,
+                             std::size_t table_size);
 
 /*!
  \brief Factory of zone graphs
@@ -441,6 +563,7 @@ tchecker::zg::zg_t * factory(std::shared_ptr<tchecker::ta::system_t const> const
  \param extrapolation_type : type of zone extrapolation
  \param clock_bounds : clock bounds
  \param block_size : number of objects allocated in a block
+ \param table_size : size of hash tables
  \return a zone graph over system with zone semantics and zone extrapolation
  defined from semantics_type, extrapolation_type and clock_bounds, and
  allocation of block_size objects at a time
@@ -448,7 +571,47 @@ tchecker::zg::zg_t * factory(std::shared_ptr<tchecker::ta::system_t const> const
 tchecker::zg::zg_t * factory(std::shared_ptr<tchecker::ta::system_t const> const & system,
                              enum tchecker::zg::semantics_type_t semantics_type,
                              enum tchecker::zg::extrapolation_type_t extrapolation_type,
-                             tchecker::clockbounds::clockbounds_t const & clock_bounds, std::size_t block_size);
+                             tchecker::clockbounds::clockbounds_t const & clock_bounds, std::size_t block_size,
+                             std::size_t table_size);
+
+/*!
+ \brief Factory of zone graphs with states/transitions sharing
+ \param system : system of timed processes
+ \param semantics_type : type of zone semantics
+ \param extrapolation_type : type of zone extrapolation
+ \param block_size : number of objects allocated in a block
+ \param table_size : size of hash tables
+ \return a zone graph over system with zone semantics and zone extrapolation
+ defined from semantics_type and extrapolation_type, and allocation of
+ block_size objects at a time, nullptr if clock bounds cannot be inferred from
+ system
+ \note the states and transitions computed by the returned zone graph share
+ internal components
+ */
+tchecker::zg::sharing_zg_t * factory_sharing(std::shared_ptr<tchecker::ta::system_t const> const & system,
+                                             enum tchecker::zg::semantics_type_t semantics_type,
+                                             enum tchecker::zg::extrapolation_type_t extrapolation_type, std::size_t block_size,
+                                             std::size_t table_size);
+
+/*!
+ \brief Factory of zone graphs with states/transitions sharing
+ \param system : system of timed processes
+ \param semantics_type : type of zone semantics
+ \param extrapolation_type : type of zone extrapolation
+ \param clock_bounds : clock bounds
+ \param block_size : number of objects allocated in a block
+ \param table_size : size of hash tables
+ \return a zone graph over system with zone semantics and zone extrapolation
+ defined from semantics_type, extrapolation_type and clock_bounds, and
+ allocation of block_size objects at a time
+ \note the states and transitions computed by the returned zone graph share
+ internal components
+ */
+tchecker::zg::sharing_zg_t * factory_sharing(std::shared_ptr<tchecker::ta::system_t const> const & system,
+                                             enum tchecker::zg::semantics_type_t semantics_type,
+                                             enum tchecker::zg::extrapolation_type_t extrapolation_type,
+                                             tchecker::clockbounds::clockbounds_t const & clock_bounds, std::size_t block_size,
+                                             std::size_t table_size);
 
 } // end of namespace zg
 

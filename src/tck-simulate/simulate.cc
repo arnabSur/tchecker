@@ -105,10 +105,13 @@ static std::size_t randomized_select(std::vector<tchecker::zg::zg_t::sst_t> cons
 std::shared_ptr<tchecker::tck_simulate::graph_t> randomized_simulation(tchecker::parsing::system_declaration_t const & sysdecl,
                                                                        std::size_t nsteps)
 {
+  std::size_t const block_size = 1000;
+  std::size_t const table_size = 65536;
+
   std::shared_ptr<tchecker::ta::system_t const> system{new tchecker::ta::system_t{sysdecl}};
   std::shared_ptr<tchecker::zg::zg_t> zg{
-      tchecker::zg::factory(system, tchecker::zg::STANDARD_SEMANTICS, tchecker::zg::NO_EXTRAPOLATION, 100)};
-  std::shared_ptr<tchecker::tck_simulate::graph_t> g{new tchecker::tck_simulate::graph_t{zg, 100}};
+      tchecker::zg::factory(system, tchecker::zg::STANDARD_SEMANTICS, tchecker::zg::NO_EXTRAPOLATION, block_size, table_size)};
+  std::shared_ptr<tchecker::tck_simulate::graph_t> g{new tchecker::tck_simulate::graph_t{zg, block_size}};
   std::vector<tchecker::zg::zg_t::sst_t> v;
 
   srand(time(NULL));
@@ -118,6 +121,7 @@ std::shared_ptr<tchecker::tck_simulate::graph_t> randomized_simulation(tchecker:
   if (k == tchecker::tck_simulate::NO_SELECTION)
     return g;
   tchecker::tck_simulate::graph_t::node_sptr_t previous_node = g->add_node(zg->state(v[k]));
+  previous_node->initial(true);
   v.clear();
 
   for (std::size_t i = 0; i < nsteps; ++i) {
@@ -184,10 +188,13 @@ static std::size_t interactive_select(tchecker::zg::zg_t const & zg, tchecker::z
 
 std::shared_ptr<tchecker::tck_simulate::graph_t> interactive_simulation(tchecker::parsing::system_declaration_t const & sysdecl)
 {
+  std::size_t const block_size = 1000;
+  std::size_t const table_size = 65536;
+
   std::shared_ptr<tchecker::ta::system_t const> system{new tchecker::ta::system_t{sysdecl}};
   std::shared_ptr<tchecker::zg::zg_t> zg{
-      tchecker::zg::factory(system, tchecker::zg::STANDARD_SEMANTICS, tchecker::zg::NO_EXTRAPOLATION, 100)};
-  std::shared_ptr<tchecker::tck_simulate::graph_t> g{new tchecker::tck_simulate::graph_t{zg, 100}};
+      tchecker::zg::factory(system, tchecker::zg::STANDARD_SEMANTICS, tchecker::zg::NO_EXTRAPOLATION, block_size, table_size)};
+  std::shared_ptr<tchecker::tck_simulate::graph_t> g{new tchecker::tck_simulate::graph_t{zg, block_size}};
   std::vector<tchecker::zg::zg_t::sst_t> v;
 
   srand(time(NULL)); // needed if user chooses randomize selection
@@ -197,6 +204,7 @@ std::shared_ptr<tchecker::tck_simulate::graph_t> interactive_simulation(tchecker
   if (k == tchecker::tck_simulate::NO_SELECTION)
     return g;
   tchecker::tck_simulate::graph_t::node_sptr_t previous_node = g->add_node(zg->state(v[k]));
+  previous_node->initial(true);
   v.clear();
 
   do {
